@@ -97,6 +97,7 @@ GML                       ``gml``
 KML                       ``kml``
 ArcGIS REST API           ``arcgis_rest``
 Google Fusion Tables      ``gft``
+Cloud Optimized Geotiff   ``geotiff``
 ========================= ===================
 
 (*) Resource formats are case insensitive
@@ -142,6 +143,20 @@ Other available configuration options are:
 Each instance of a view has the following configuration options that can override the global configuration :
  * `feature_hoveron`: if set to True, feature data popup will be displayed when hovering on
  * `feature_style`: JSON representation of an OpenLayers style, as accepted by the StyleMap constructor
+
+
+**Notes for COGs**
+
+Until OpenLayers supports Cloud Optimized Geotiffs (COG), we use marblecutter, a service to dynmically serve regular XYZ tiles
+from COGs. By default, `http://tiles.rdnt.io/` is used. If you want to use your own, you can set `ckanext.geoview.marblecutter_url`.
+
+For COGs to work, the resource endpoint must correctly support range requests.
+This is unfortunately not the case of paster (`here <https://github.com/olivierdalang/paste/commit/4e494fdc77c373f79a3ea4899892354a9389dd8c>`_'s an initial attempt to fix it).
+The easiest way to workaround this limitation is to directly serve resource files from nginx, with this configuration ::
+
+    location ~ "/dataset/[^/]+/resource/([^/]{3})([^/]{3})([^/]+)/download/.*" {
+        alias /ckan_storage/resources/$1/$2/$3;
+    }
 
 **Specific basemap support**
 In addition to the basemap types described in `Common base layers for Map Widgets`_, the OpenLayers viewer supports several
