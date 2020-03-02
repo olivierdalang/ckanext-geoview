@@ -23,7 +23,7 @@ boolean_validator = toolkit.get_validator('boolean_validator')
 log = getLogger(__name__)
 
 GEOVIEW_FORMATS = ['kml', 'geojson', 'gml', 'wms', 'wfs', 'esrigeojson',
-                   'gft', 'arcgis_rest', 'wmts', 'esri rest']
+                   'gft', 'arcgis_rest', 'wmts', 'esri rest', 'geotiff']
 
 GEOJSON_MAX_FILE_SIZE = 25 * 1024 * 1024
 
@@ -229,9 +229,14 @@ class OLGeoView(GeoViewBase):
             toolkit.c.resource['proxy_service_url'] = proxy_service_url
             toolkit.c.resource['gapi_key'] = gapi_key
 
+        marblecutter_url = toolkit.config.get('ckanext.geoview.marblecutter_url')
+        if not marblecutter_url:
+            marblecutter_url = 'http://tiles.rdnt.io/'
+
         return {'resource_view_json': 'resource_view' in data_dict and json.dumps(data_dict['resource_view']),
                 'proxy_service_url': proxy_service_url,
                 'proxy_url': proxy_url,
+                'marblecutter_url': marblecutter_url,
                 'gapi_key': gapi_key,
                 'basemapsConfig': self.basemapsConfig}
 

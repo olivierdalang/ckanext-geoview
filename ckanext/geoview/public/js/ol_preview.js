@@ -14,7 +14,7 @@
 
         ckan.geoview = ckan.geoview || {}
 
-        var esrirestExtractor = function(resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+        var esrirestExtractor = function(resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
             var parsedUrl = resource.url.split('#');
             var url = proxyServiceUrl || parsedUrl[0];
 
@@ -25,26 +25,48 @@
 
         ckan.geoview.layerExtractors = {
 
-            'kml': function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'kml': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var url = proxyUrl || resource.url;
                 layerProcessor(OL_HELPERS.createKMLLayer(url));
             },
-            'gml': function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'gml': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var url = proxyUrl || resource.url;
                 layerProcessor(OL_HELPERS.createGMLLayer(url));
             },
-            'geojson': function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'geojson': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var url = proxyUrl || resource.url;
                 layerProcessor(OL_HELPERS.createGeoJSONLayer(url));
             },
-            'wfs': function(resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'geotiff': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
+                var url = proxyUrl || resource.url;
+
+                jQuery.getJSON(marbleCutterUrl+'bounds?url='+encodeURIComponent(url)).done(function(json) {
+                    var layer = new ol.layer.Tile({
+                        title: 'COG Geotiff',
+                        source: new ol.source.XYZ({
+                            url: marbleCutterUrl+'tiles/{z}/{x}/{y}?url='+encodeURIComponent(url)
+                        })
+                    });
+
+                    layer.getSource().getFullExtent = function(){
+                        return  [json.bounds[0],json.bounds[1],json.bounds[2],json.bounds[3]];
+                    }
+
+                    layerProcessor(layer);
+                  })
+                  .fail(function(error) {
+                    console.log( "could not get extents" );
+                  });
+
+            },
+            'wfs': function(resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var parsedUrl = resource.url.split('#');
                 var url = proxyServiceUrl || parsedUrl[0];
 
                 var ftName = parsedUrl.length > 1 && parsedUrl[1];
                 OL_HELPERS.withFeatureTypesLayers(url, layerProcessor, ftName, map, true /* useGET */);
             },
-            'wms' : function(resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'wms' : function(resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var parsedUrl = resource.url.split('#');
                 // use the original URL for the getMap, as there's no need for a proxy for image requests
                 var getMapUrl = parsedUrl[0];
@@ -54,7 +76,7 @@
                 var layerName = parsedUrl.length > 1 && parsedUrl[1];
                 OL_HELPERS.withWMSLayers(url, getMapUrl, layerProcessor, layerName, true /* useTiling*/, map );
             },
-            'wmts' : function(resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'wmts' : function(resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var parsedUrl = resource.url.split('#');
 
                 var url = proxyServiceUrl || parsedUrl[0];
@@ -62,22 +84,22 @@
                 var layerName = parsedUrl.length > 1 && parsedUrl[1];
                 OL_HELPERS.withWMTSLayers(url, layerProcessor, layerName);
             },
-            'esrigeojson': function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'esrigeojson': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var url = proxyUrl || resource.url;
                 layerProcessor(OL_HELPERS.createEsriGeoJSONLayer(url));
             },
             'arcgis_rest': esrirestExtractor ,
             'esri rest': esrirestExtractor ,
-            'gft': function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+            'gft': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var tableId = OL_HELPERS.parseURL(resource.url).query.docid;
                 layerProcessor(OL_HELPERS.createGFTLayer(tableId, ckan.geoview.gapi_key));
             }
         }
 
-        var withLayers = function (resource, proxyUrl, proxyServiceUrl, layerProcessor, map) {
+        var withLayers = function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
 
             var withLayers = ckan.geoview.layerExtractors[resource.format && resource.format.toLocaleLowerCase()];
-            withLayers && withLayers(resource, proxyUrl, proxyServiceUrl, layerProcessor, map);
+            withLayers && withLayers(resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map);
         }
 
         return {
@@ -143,6 +165,7 @@
                 // gather options and config for this view
                 var proxyUrl = this.options.proxy_url;
                 var proxyServiceUrl = this.options.proxy_service_url;
+                var marbleCutterUrl = this.options.marble_cutter_url;
 
                 if (this.options.resourceView)
                     $_.extend(ckan.geoview, JSON.parse(this.options.resourceView));
@@ -266,11 +289,12 @@
 
                     var proxyUrl = this.options.proxy_url;
                     var proxyServiceUrl = this.options.proxy_service_url;
+                    var marbleCutterUrl = this.options.marblecutter_url;
 
                     ckan.geoview.googleApiKey = this.options.gapi_key;
 
 
-                    withLayers(preload_resource, proxyUrl, proxyServiceUrl, $_.bind(this.addLayer, this), this.map);
+                    withLayers(preload_resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, $_.bind(this.addLayer, this), this.map);
                 }
 
                 var $this = this;
