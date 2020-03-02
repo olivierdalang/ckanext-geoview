@@ -185,6 +185,7 @@
                         target: $('.map')[0],
                         layers: [baseMapLayer],
                         controls: [
+                            new ol.control.Zoom(),
                             new ol.control.ZoomSlider(),
                             new ol.control.MousePosition( {
                                 coordinateFormat: coordinateFormatter,
