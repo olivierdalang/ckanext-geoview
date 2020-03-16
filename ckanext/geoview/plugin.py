@@ -231,7 +231,7 @@ class OLGeoView(GeoViewBase):
 
         marblecutter_url = toolkit.config.get('ckanext.geoview.marblecutter_url')
         if not marblecutter_url:
-            marblecutter_url = 'http://tiles.rdnt.io/'
+            marblecutter_url = 'https://tiles.rdnt.io/'
 
         return {'resource_view_json': 'resource_view' in data_dict and json.dumps(data_dict['resource_view']),
                 'proxy_service_url': proxy_service_url,
