@@ -38,7 +38,7 @@
                 layerProcessor(OL_HELPERS.createGeoJSONLayer(url));
             },
             'geotiff': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
-                var url = proxyUrl || resource.url;
+                var url = resource.url;
 
                 jQuery.getJSON(marbleCutterUrl+'bounds?url='+encodeURIComponent(url)).done(function(json) {
                     var layer = new ol.layer.Tile({
