@@ -148,7 +148,7 @@ Each instance of a view has the following configuration options that can overrid
 **Notes for COGs**
 
 Until OpenLayers supports Cloud Optimized Geotiffs (COG), we use marblecutter, a service to dynmically serve regular XYZ tiles
-from COGs. By default, `http://tiles.rdnt.io/` is used. If you want to use your own, you can set `ckanext.geoview.marblecutter_url`.
+from COGs. By default, `https://tiles.rdnt.io/` is used. If you want to use your own, you can set `ckanext.geoview.marblecutter_url`.
 
 For COGs to work, the resource endpoint must correctly support range requests.
 This is unfortunately not the case of paster (`here <https://github.com/olivierdalang/paste/commit/4e494fdc77c373f79a3ea4899892354a9389dd8c>`_'s an initial attempt to fix it).
