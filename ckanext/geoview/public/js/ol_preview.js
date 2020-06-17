@@ -4,9 +4,11 @@ var XyzServiceButton = /*@__PURE__*/(function (Control) {
     function XyzServiceButton(url) {
         this.url = url;
 
+      let icon = document.createElement('i');
+      icon.setAttribute('class', 'fa icon fa-th');
       var button = document.createElement('button');
-      button.innerHTML = 'X';
-      button.setAttribute('title', 'Get XYZ url');
+      button.setAttribute('title', 'Get XYZ tiles url');
+      button.appendChild(icon);
 
       var element = document.createElement('div');
       element.className = 'export-xyz ol-unselectable ol-control';
@@ -35,9 +37,11 @@ var XyzServiceButton = /*@__PURE__*/(function (Control) {
         this.url = url;
         this.name = name;
 
+        let icon = document.createElement('i');
+        icon.setAttribute('class', 'fa icon fa-compass');
         var button = document.createElement('button');
-        button.innerHTML = 'Q';
         button.setAttribute('title', 'Download as QGIS layer');
+        button.appendChild(icon);
 
         var element = document.createElement('div');
         element.className = 'export-qgis ol-unselectable ol-control';
