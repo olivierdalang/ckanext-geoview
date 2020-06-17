@@ -212,8 +212,8 @@
                             new ol.control.ZoomSlider(),
                             new ol.control.MousePosition( {
                                 coordinateFormat: coordinateFormatter,
-                            }),
-                            layerSwitcher
+                            })
+                            // layerSwitcher,
                         ],
                         loadingDiv: false,
                         loadingListener: function(isLoading) {
