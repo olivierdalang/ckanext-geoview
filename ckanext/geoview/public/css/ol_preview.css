@@ -103,3 +103,11 @@
      padding: 1px;
  }
 
+ .export-xyz {
+    top: .5em;
+    right: .5em;
+  }
+  .export-qgis {
+    top: 2.375em;
+    right: .5em;
+  }

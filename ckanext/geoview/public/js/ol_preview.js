@@ -1,5 +1,94 @@
 // Openlayers preview module
 
+var XyzServiceButton = /*@__PURE__*/(function (Control) {
+    function XyzServiceButton(url) {
+        this.url = url;
+
+      var button = document.createElement('button');
+      button.innerHTML = 'X';
+      button.setAttribute('title', 'Get XYZ url');
+
+      var element = document.createElement('div');
+      element.className = 'export-xyz ol-unselectable ol-control';
+      element.appendChild(button);
+
+      Control.call(this, {
+        element: element
+      });
+
+      button.addEventListener('click', this.handleClick.bind(this), false);
+    }
+
+    if ( Control ) XyzServiceButton.__proto__ = Control;
+    XyzServiceButton.prototype = Object.create( Control && Control.prototype );
+    XyzServiceButton.prototype.constructor = XyzServiceButton;
+
+    XyzServiceButton.prototype.handleClick = function handleClick () {
+        prompt("XYZ service", this.url);
+    };
+
+    return XyzServiceButton;
+  }(ol.control.Control));
+
+  var QGisLayerButton = /*@__PURE__*/(function (Control) {
+      function QGisLayerButton(url, name) {
+        this.url = url;
+        this.name = name;
+
+        var button = document.createElement('button');
+        button.innerHTML = 'Q';
+        button.setAttribute('title', 'Download as QGIS layer');
+
+        var element = document.createElement('div');
+        element.className = 'export-qgis ol-unselectable ol-control';
+        element.appendChild(button);
+
+        Control.call(this, {
+          element: element
+        });
+
+        button.addEventListener('click', this.handleClick.bind(this), false);
+      }
+
+      if ( Control ) QGisLayerButton.__proto__ = Control;
+      QGisLayerButton.prototype = Object.create( Control && Control.prototype );
+      QGisLayerButton.prototype.constructor = QGisLayerButton;
+
+      QGisLayerButton.prototype.handleClick = function handleClick () {
+
+          let qlr = '';
+          qlr += '<!DOCTYPE qgis-layer-definition>';
+          qlr += '<qlr>';
+          qlr += '  <maplayers>';
+          qlr += '    <maplayer type="raster">';
+          qlr += '      <datasource>/vsicurl/https://inondations-dakar.org/dataset/30d329dc-c84b-405f-a908-45a0f6f40a58/resource/9701f4db-b82d-47d6-afa5-34796851371a/download/keur-massar_transparent.cog.tif</datasource>';
+          qlr += '      <layername>'+this.name+'</layername>';
+          qlr += '      <srs>';
+          qlr += '        <spatialrefsys>';
+          qlr += '          <proj4>+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs</proj4>';
+          qlr += '        </spatialrefsys>';
+          qlr += '      </srs>';
+          qlr += '      <provider>gdal</provider>';
+          qlr += '    </maplayer>';
+          qlr += '  </maplayers>';
+          qlr += '</qlr>';
+
+          var a = window.document.createElement('a');
+          a.href = window.URL.createObjectURL(new Blob([qlr], {type: 'text/application'}));
+          a.download = this.name+'.qlr';
+
+          // Append anchor to body.
+          document.body.appendChild(a);
+          a.click();
+
+          // Remove anchor from body
+          document.body.removeChild(a);
+
+      };
+
+      return QGisLayerButton;
+    }(ol.control.Control));
+
 (function() {
 
     if (window.Proj4js) {
@@ -39,18 +128,24 @@
             },
             'geotiff': function (resource, proxyUrl, proxyServiceUrl, marbleCutterUrl, layerProcessor, map) {
                 var url = resource.url;
+                var fullMarbleCutterUrl = marbleCutterUrl+'tiles/{z}/{x}/{y}?url='+encodeURIComponent(url);
+                var parsedUrl = url.split('/');
+                var layerName = parsedUrl[parsedUrl.length - 1];
 
                 jQuery.getJSON(marbleCutterUrl+'bounds?url='+encodeURIComponent(url)).done(function(json) {
                     var layer = new ol.layer.Tile({
                         title: 'COG Geotiff',
                         source: new ol.source.XYZ({
-                            url: marbleCutterUrl+'tiles/{z}/{x}/{y}?url='+encodeURIComponent(url)
+                            url: fullMarbleCutterUrl
                         })
                     });
 
                     layer.getSource().getFullExtent = function(){
                         return  [json.bounds[0],json.bounds[1],json.bounds[2],json.bounds[3]];
                     }
+
+                    map.addControl( new XyzServiceButton( fullMarbleCutterUrl ) );
+                    map.addControl( new QGisLayerButton( url, layerName ) );
 
                     layerProcessor(layer);
                   })
