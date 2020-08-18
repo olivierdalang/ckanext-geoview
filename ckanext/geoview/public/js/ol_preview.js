@@ -391,6 +391,10 @@ var XyzServiceButton = /*@__PURE__*/(function (Control) {
                     var proxyServiceUrl = this.options.proxy_service_url;
                     var marbleCutterUrl = this.options.marblecutter_url;
 
+                    if( marbleCutterUrl && marbleCutterUrl.startsWith('/') ) {
+                        let base = location.protocol + '//' + location.hostname;
+                        marbleCutterUrl = base + marbleCutterUrl;
+                    }
                     ckan.geoview.googleApiKey = this.options.gapi_key;
 
 
