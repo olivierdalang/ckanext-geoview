@@ -65,7 +65,7 @@ var XyzServiceButton = /*@__PURE__*/(function (Control) {
           qlr += '<qlr>';
           qlr += '  <maplayers>';
           qlr += '    <maplayer type="raster">';
-          qlr += '      <datasource>/vsicurl/https://inondations-dakar.org/dataset/30d329dc-c84b-405f-a908-45a0f6f40a58/resource/9701f4db-b82d-47d6-afa5-34796851371a/download/keur-massar_transparent.cog.tif</datasource>';
+          qlr += '      <datasource>/vsicurl/'+this.url+'</datasource>';
           qlr += '      <layername>'+this.name+'</layername>';
           qlr += '      <srs>';
           qlr += '        <spatialrefsys>';
