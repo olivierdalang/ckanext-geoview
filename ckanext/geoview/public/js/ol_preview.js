@@ -309,9 +309,9 @@ var XyzServiceButton = /*@__PURE__*/(function (Control) {
                         controls: [
                             new ol.control.Zoom(),
                             new ol.control.ZoomSlider(),
-                            new ol.control.MousePosition( {
-                                coordinateFormat: coordinateFormatter,
-                            })
+                            // new ol.control.MousePosition( {
+                            //     coordinateFormat: coordinateFormatter,
+                            // })
                             // layerSwitcher,
                         ],
                         loadingDiv: false,
